@@ -72,7 +72,11 @@ void main_window::remove_dirs() {
 }
 
 void main_window::search_text(QString const &query) {
+    if (query.length() == 0) {
+        ui->listWidget->clear();
+        return;
+    }
     cleared = true;
     w.search_text(query);
-    ui->dirListWidget->clear();
+    ui->listWidget->clear();
 }

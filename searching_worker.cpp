@@ -8,10 +8,15 @@
 #include "searching_worker.h"
 
 searching_worker::searching_worker(const QString &file_path,
-                                   const QString &patthern,
+                                   const QString &pattern,
                                    const std::unordered_set<hash_t> &pattern_trigrams,
-                                   const std::unordered_set<hash_t> &file_trigrams)
-    : file_path(file_path), file_trigrams(file_trigrams), pattern_trigrams(pattern_trigrams) {
+                                   std::unordered_map<QString, std::unordered_set<hash_t>> &index,
+                                   std::mutex &index_mutex)
+    : file_path(file_path),
+      pattern(pattern),
+      pattern_trigrams(pattern_trigrams),
+      index(index),
+      index_mutex(index_mutex) {
 }
 
 void searching_worker::run() {
@@ -31,11 +36,12 @@ void searching_worker::stop() {
 }
 
 bool searching_worker::contains_all() {
-    for (auto &x : pattern_trigrams) {
+    std::lock_guard<std::mutex> g(index_mutex);
+    for (auto &x : index[file_path]) {
         if (stop_requested) {
             return false;
         }
-        if (!file_trigrams.count(x)) {
+        if (!index[file_path].count(x)) {
             return false;
         }
     }

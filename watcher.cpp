@@ -43,7 +43,10 @@ void watcher::search_text(QString const &text) {
     auto pt = get_trigrams(text);
     std::lock_guard<std::mutex> guard(index_mutex);
     for (auto &i : index) {
-        auto worker = new searching_worker(i.first, text, pt, i.second);
+        if (i.second.empty()) {
+            continue;
+        }
+        auto worker = new searching_worker(i.first, text, pt, index, index_mutex);
         connect(worker, &searching_worker::send_result, mw, &main_window::add_result_item);
         connect(this, &watcher::stop_searching, worker, &searching_worker::stop);
         indexing_pool.start(worker);
