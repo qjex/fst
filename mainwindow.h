@@ -28,9 +28,13 @@ public slots:
     void add_result_item(QString const &duplicates);
     void set_indexing_status(bool f);
     void search_text(QString const &query);
+signals:
+    void send_dir(QString const&dir, bool f);
+    void send_text(QString const &text);
+    void shutdown_pools();
 private:
     std::unique_ptr<Ui::MainWindow> ui;
-    watcher w;
+    QThread workerThread;
     bool cleared = false;
 };
 

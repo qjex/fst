@@ -1,6 +1,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QThreadPool>
+#include <QDirIterator>
 #include "watcher.h"
 #include "QDebug"
 #include "indexing_worker.h"
@@ -21,13 +22,11 @@ void watcher::index_file(QString const &path) {
 }
 
 bool watcher::update_watch_files(QString const &path, bool add) {
-    QDir monitoredFolder(path);
-    QFileInfoList watchedList = monitoredFolder.entryInfoList(QDir::NoDotAndDotDot | QDir::Files);
+    QDirIterator it(path, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
 
-    QListIterator<QFileInfo> iterator(watchedList);
     bool res = true;
-    while (iterator.hasNext()) {
-        auto file = iterator.next().filePath();
+    while (it.hasNext()) {
+        auto file = it.next();
         bool prev_res = (add ? fs_watcher.addPath(file) : fs_watcher.removePath(file));
         if (add && prev_res) {
             index_file(file);

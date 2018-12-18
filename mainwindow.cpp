@@ -9,7 +9,7 @@
 #include <QLocale>
 
 main_window::main_window(QWidget *parent)
-    : QMainWindow(parent), ui(new Ui::MainWindow), w(this) {
+    : QMainWindow(parent), ui(new Ui::MainWindow) {
 //    qRegisterMetaType<std::unordered_map<QByteArray, std::vector<QString>>>(
 //        "std::unordered_map<QByteArray,std::vector<QString>>");
     ui->setupUi(this);
@@ -17,6 +17,14 @@ main_window::main_window(QWidget *parent)
     ui->label->setText("");
 
     ui->dirListWidget->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    auto *w = new watcher(this);
+    w->moveToThread(&workerThread);
+
+    connect(&workerThread, &QThread::finished, w, &QObject::deleteLater);
+    connect(this, &main_window::send_text, w, &watcher::search_text);
+    connect(this, &main_window::send_dir, w, &watcher::update_watch_files);
+    connect(this, &main_window::shutdown_pools, w, &watcher::shutdown_pools);
+    workerThread.start();
 
     QCommonStyle style;
     ui->actionAdd_Directory->setIcon(style.standardIcon(QCommonStyle::SP_DialogOpenButton));
@@ -51,7 +59,9 @@ void main_window::set_indexing_status(bool f) {
 }
 
 void main_window::closeEvent(QCloseEvent *event) {
-    w.shutdown_pools();
+    emit shutdown_pools();
+    workerThread.quit();
+    workerThread.wait();
 }
 
 void main_window::add_directory() {
@@ -60,13 +70,13 @@ void main_window::add_directory() {
                                                     QString(),
                                                     QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
     ui->dirListWidget->addItem(dir);
-    w.update_watch_files(dir, true);
+    emit send_dir(dir, true);
 }
 
 void main_window::remove_dirs() {
     auto selected = ui->dirListWidget->selectedItems();
     for (auto dir_item : selected) {
-        w.update_watch_files(dir_item->text(), false);
+        emit send_dir(dir_item->text(), false);
     }
     qDeleteAll(selected);
 }
@@ -77,6 +87,6 @@ void main_window::search_text(QString const &query) {
         return;
     }
     cleared = true;
-    w.search_text(query);
+    emit send_text(query);
     ui->listWidget->clear();
 }

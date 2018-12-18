@@ -15,7 +15,6 @@ indexing_worker::indexing_worker(const QString &file_path,
 void indexing_worker::run() {
     emit send_status(true);
     auto res = get_file_trigrams(file_path);
-    qDebug() << "indexing file: " << file_path << " trigrams: " << res.size();
     std::lock_guard<std::mutex> lock(index_mutex);
     index[file_path] = res;
     emit send_status(false);

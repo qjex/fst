@@ -11,18 +11,16 @@
 
 class main_window;
 
-class watcher : public QObject {
+class watcher : public QThread {
 Q_OBJECT
 public:
     watcher(main_window *);
-    bool update_watch_files(QString const &path, bool add);
-    void shutdown_pools();
-    void search_text(QString const &text);
     ~watcher();
-signals:
-
 public slots:
     void index_file(QString const &);
+    bool update_watch_files(QString const &path, bool add);
+    void search_text(QString const &text);
+    void shutdown_pools();
 signals:
     void stop_searching();
 private:
