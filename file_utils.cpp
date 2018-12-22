@@ -49,9 +49,19 @@ std::vector<hash_t> get_file_trigrams(QString const &path) {
 }
 
 void get_trigrams(QString const &s, std::unordered_set<hash_t> &result) {
+    if (s.size() < 3) {
+        hash_t hash = 0;
+        for (auto &i : s) {
+            hash = (hash << 16);
+            hash += i.unicode();
+        }
+        result.insert(hash);
+        return;
+    }
+
     std::array<ushort, 3> tmp = {s[0].unicode(), s[1].unicode(), s[2].unicode()};
     result.insert(get_hash(tmp));
-    for (int i = 3; i < s.size(); ++i) {
+    for (auto i = 3; i < s.size(); ++i) {´ß
         tmp[0] = tmp[1];
         tmp[1] = tmp[2];
         tmp[2] = s[i].unicode();
