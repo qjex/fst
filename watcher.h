@@ -9,6 +9,7 @@
 #include <QFileSystemWatcher>
 #include <QThreadPool>
 #include <QFuture>
+#include <mutex>
 
 class main_window;
 

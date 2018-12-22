@@ -6,6 +6,7 @@
 #include <QFile>
 #include <QTextStream>
 #include "searching_worker.h"
+#include "QDebug"
 
 searching_worker::searching_worker(const std::vector<QString> &files,
                                    const QString &pattern,
