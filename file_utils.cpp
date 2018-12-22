@@ -61,7 +61,7 @@ void get_trigrams(QString const &s, std::unordered_set<hash_t> &result) {
 
     std::array<ushort, 3> tmp = {s[0].unicode(), s[1].unicode(), s[2].unicode()};
     result.insert(get_hash(tmp));
-    for (auto i = 3; i < s.size(); ++i) {´ß
+    for (auto i = 3; i < s.size(); ++i) {
         tmp[0] = tmp[1];
         tmp[1] = tmp[2];
         tmp[2] = s[i].unicode();
