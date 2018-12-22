@@ -55,7 +55,7 @@ void main_window::add_result_item(const QString &filename) {
 
 void main_window::set_indexing_status(bool f) {
     ui->label->setText(f ? "Indexing..." : "");
-    ui->textInput->setDisabled(f);
+//    ui->textInput->setDisabled(f);
 }
 
 void main_window::closeEvent(QCloseEvent *event) {

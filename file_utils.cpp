@@ -17,7 +17,6 @@ const int READ_BUFFER_SZ = 4 * 1024 * 1024;
 std::vector<hash_t> get_file_trigrams(QString const &path) {
     std::unordered_set<hash_t> result;
     QFile file(path);
-    int64_t all = 0;
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream stream(&file);
         stream.setCodec("UTF-8");
@@ -27,7 +26,6 @@ std::vector<hash_t> get_file_trigrams(QString const &path) {
             if (buffer.size() < 3) {
                 break;
             }
-            all += buffer.size();
             get_trigrams(buffer, result);
             if (result.empty()) {
                 break;
@@ -40,7 +38,7 @@ std::vector<hash_t> get_file_trigrams(QString const &path) {
         result.clear();
     }
 //    if (!result.empty()) {
-//        qDebug() << path << ' ' << result.size() << ' ' << all;
+//        qDebug() << path << ' ' << result.size();
 //    }
     std::vector<hash_t> v(result.begin(), result.end());
     std::sort(v.begin(), v.end());
