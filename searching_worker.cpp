@@ -44,7 +44,8 @@ bool searching_worker::contains_all(const QString &path, const std::unordered_se
         if (stop_requested) {
             return false;
         }
-        if (lower_bound(index[path].begin(), index[path].end(), x) == index[path].end()) {
+        auto it = lower_bound(index[path].begin(), index[path].end(), x);
+        if (it == index[path].end() || (*it) != x) {
             return false;
         }
     }
