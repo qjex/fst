@@ -44,10 +44,6 @@ void main_window::show_about_dialog() {
 }
 
 void main_window::add_result_item(const QString &filename) {
-    if (cleared) {
-        ui->listWidget->clear();
-        cleared = false;
-    }
     auto *item = new QListWidgetItem();
     item->setText(filename);
     ui->listWidget->addItem(item);
@@ -58,7 +54,7 @@ void main_window::set_indexing_status(bool f) {
 //    ui->textInput->setDisabled(f);
 }
 
-void main_window::closeEvent(QCloseEvent *event) {
+void main_window::closeEvent(QCloseEvent *) {
     emit shutdown_pools();
     workerThread.quit();
     workerThread.wait();
@@ -86,7 +82,6 @@ void main_window::search_text(QString const &query) {
         ui->listWidget->clear();
         return;
     }
-    cleared = true;
     emit send_text(query);
     ui->listWidget->clear();
 }

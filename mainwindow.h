@@ -35,7 +35,6 @@ signals:
 private:
     std::unique_ptr<Ui::MainWindow> ui;
     QThread workerThread;
-    bool cleared = false;
 };
 
 #endif // MAINWINDOW_H
