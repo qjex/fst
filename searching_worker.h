@@ -14,26 +14,24 @@
 struct searching_worker : public QObject, public QRunnable {
 Q_OBJECT
 public:
-    searching_worker(const QString &file_path,
+    searching_worker(const std::vector<QString> &files,
                      const QString &pattern,
-                     const std::unordered_set<hash_t> &pattern_trigrams,
-                     std::unordered_map<QString, std::unordered_set<hash_t>> &index,
+                     std::unordered_map<QString, std::vector<hash_t>> &index,
                      std::mutex &index_mutex);
     void run() override;
 private:
-    bool contains_all();
-    bool contains();
+    bool contains_all(const QString&, const std::unordered_set<hash_t> &);
+    bool contains(const QString&);
 signals:
     void send_result(const QString &);
 public slots:
     void stop();
 private:
-    QString file_path;
+    std::vector<QString> files;
     QString pattern;
-    std::unordered_set<hash_t> pattern_trigrams;
     bool stop_requested = false;
     std::mutex &index_mutex;
-    std::unordered_map<QString, std::unordered_set<hash_t>> &index;
+    std::unordered_map<QString, std::vector<hash_t>> &index;
 };
 
 #endif //FST_SEARCHING_WORKER_H

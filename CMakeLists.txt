@@ -12,7 +12,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3")
 
 find_package(Qt5Widgets REQUIRED)
 
-add_executable(fst main.cpp mainwindow.h mainwindow.cpp file_utils.cpp file_utils.h watcher.cpp watcher.h indexing_worker.cpp indexing_worker.h searching_worker.cpp searching_worker.h)
+add_executable(fst main.cpp mainwindow.h mainwindow.cpp file_utils.cpp file_utils.h watcher.cpp watcher.h searching_worker.cpp searching_worker.h)
 
 qt5_use_modules(fst Widgets)
 include_directories("${CMAKE_BINARY_DIR}")

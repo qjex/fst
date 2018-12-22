@@ -10,8 +10,6 @@
 
 main_window::main_window(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow) {
-//    qRegisterMetaType<std::unordered_map<QByteArray, std::vector<QString>>>(
-//        "std::unordered_map<QByteArray,std::vector<QString>>");
     ui->setupUi(this);
     setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(), qApp->desktop()->availableGeometry()));
     ui->label->setText("");
@@ -23,6 +21,7 @@ main_window::main_window(QWidget *parent)
     connect(&workerThread, &QThread::finished, w, &QObject::deleteLater);
     connect(this, &main_window::send_text, w, &watcher::search_text);
     connect(this, &main_window::send_dir, w, &watcher::update_watch_files);
+    connect(w, &watcher::send_indexing_status, this, &main_window::set_indexing_status);
     connect(this, &main_window::shutdown_pools, w, &watcher::shutdown_pools);
     workerThread.start();
 
@@ -56,6 +55,7 @@ void main_window::add_result_item(const QString &filename) {
 
 void main_window::set_indexing_status(bool f) {
     ui->label->setText(f ? "Indexing..." : "");
+    ui->textInput->setDisabled(f);
 }
 
 void main_window::closeEvent(QCloseEvent *event) {

@@ -7,10 +7,13 @@
 #include <QTextStream>
 #include "file_utils.h"
 #include "QDebug"
+#include "unordered_set"
 
 const int MAX_RES_SZ = 20000;
+const int READ_BUFFER_SZ = 4 * 1024 * 1024;
 
-std::unordered_set<hash_t> get_file_trigrams(QString const &path) {
+
+std::vector<hash_t> get_file_trigrams(QString const &path) {
     std::unordered_set<hash_t> result;
     QFile file(path);
     int64_t all = 0;
@@ -18,9 +21,8 @@ std::unordered_set<hash_t> get_file_trigrams(QString const &path) {
         QTextStream stream(&file);
         stream.setCodec("UTF-8");
         QString buffer;
-        int64_t blocks = 0;
         while (true) {
-            buffer.append(stream.read(BUFFER_SZ));
+            buffer.append(stream.read(READ_BUFFER_SZ));
             if (buffer.size() < 3) {
                 break;
             }
@@ -34,17 +36,18 @@ std::unordered_set<hash_t> get_file_trigrams(QString const &path) {
                 result.insert(t);
             }
             buffer = buffer.mid(buffer.size() - 2, 2);
-            blocks++;
         }
         file.close();
     }
     if (result.size() >= MAX_RES_SZ) {
         result.clear();
     }
-    if (result.size()) {
+    if (!result.empty()) {
         qDebug() << path << ' ' << result.size() << ' ' << all;
     }
-    return result;
+    std::vector<hash_t> v(result.begin(), result.end());
+    std::sort(v.begin(), v.end());
+    return v;
 
 }
 
@@ -53,7 +56,7 @@ std::unordered_set<hash_t> get_trigrams(QString const &s) {
     for (int i = 0; i < s.size() - 2; ++i) {
         hash_t hash = 0;
         for (int j = 0; j < 3; ++j) {
-            if (s[i + j] == 0) {
+            if (s[i + j].unicode() == 0) {
                 result.clear();
                 return result;
             }

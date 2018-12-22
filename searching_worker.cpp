@@ -7,27 +7,28 @@
 #include <QTextStream>
 #include "searching_worker.h"
 
-searching_worker::searching_worker(const QString &file_path,
+searching_worker::searching_worker(const std::vector<QString> &files,
                                    const QString &pattern,
-                                   const std::unordered_set<hash_t> &pattern_trigrams,
-                                   std::unordered_map<QString, std::unordered_set<hash_t>> &index,
+                                   std::unordered_map<QString, std::vector<hash_t>> &index,
                                    std::mutex &index_mutex)
-    : file_path(file_path),
+    : files(files),
       pattern(pattern),
-      pattern_trigrams(pattern_trigrams),
       index(index),
       index_mutex(index_mutex) {
 }
 
 void searching_worker::run() {
-    if (!contains_all()) {
-        return;
-    }
-    if (stop_requested) {
-        return;;
-    }
-    if (contains()) {
-        emit send_result(file_path);
+    auto trigrams = get_trigrams(pattern);
+    for (auto &file : files) {
+        if (!contains_all(file, trigrams)) {
+            return;
+        }
+        if (stop_requested) {
+            return;
+        }
+        if (contains(file)) {
+            emit send_result(file);
+        }
     }
 }
 
@@ -35,29 +36,32 @@ void searching_worker::stop() {
     stop_requested = true;
 }
 
-bool searching_worker::contains_all() {
+bool searching_worker::contains_all(const QString &path, const std::unordered_set<hash_t> &trigrams) {
     std::lock_guard<std::mutex> g(index_mutex);
-    for (auto &x : index[file_path]) {
+    for (auto &x : trigrams) {
         if (stop_requested) {
             return false;
         }
-        if (!index[file_path].count(x)) {
+        if (lower_bound(index[path].begin(), index[path].end(), x) == index[path].end()) {
             return false;
         }
     }
     return true;
 }
 
-bool searching_worker::contains() {
-    QFile file(file_path);
+bool searching_worker::contains(const QString &path) {
+    QFile file(path);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream stream(&file);
         QString buffer;
         while (buffer.append(stream.read(BUFFER_SZ)).size() >= pattern.size()) {
-            for (int i = 0; i <= BUFFER_SZ - pattern.size(); i++) {
+            for (int i = 0; i < BUFFER_SZ - pattern.size() + 1; i++) {
                 int j = 0;
-                for (; pattern[j] == buffer[i + j] && j < pattern.size(); j++);
+                while (pattern[j] == buffer[i + j] && j < pattern.size()) {
+                    j++;
+                }
                 if (j == pattern.size()) {
+                    file.close();
                     return true;
                 }
             }
@@ -65,6 +69,5 @@ bool searching_worker::contains() {
         }
     }
     file.close();
-
     return false;
 }
