@@ -49,6 +49,7 @@ bool watcher::update_watch_files(QString const &path, bool add) {
 
 void watcher::search_text(QString const &text) {
     searching_pool.clear();
+    emit stop_searching();
     for (auto& files : get_tasks()) {
         auto worker = new searching_worker(files, text, index, index_mutex);
         connect(worker, &searching_worker::send_result, mw, &main_window::add_result_item);
