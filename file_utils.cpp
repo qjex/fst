@@ -56,12 +56,13 @@ std::unordered_set<hash_t> get_trigrams(QString const &s) {
     for (int i = 0; i < s.size() - 2; ++i) {
         hash_t hash = 0;
         for (int j = 0; j < 3; ++j) {
-            if (s[i + j].unicode() == 0) {
+            ushort c = s[i + j].unicode();
+            if (c == 0) {
                 result.clear();
                 return result;
             }
             hash = (hash << 16);
-            hash += s[i + j].unicode();
+            hash += c;
         }
         result.insert(hash);
     }
