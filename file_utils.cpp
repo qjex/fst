@@ -39,9 +39,9 @@ std::vector<hash_t> get_file_trigrams(QString const &path) {
     if (result.size() >= MAX_RES_SZ) {
         result.clear();
     }
-    if (!result.empty()) {
-        qDebug() << path << ' ' << result.size() << ' ' << all;
-    }
+//    if (!result.empty()) {
+//        qDebug() << path << ' ' << result.size() << ' ' << all;
+//    }
     std::vector<hash_t> v(result.begin(), result.end());
     std::sort(v.begin(), v.end());
     return v;
