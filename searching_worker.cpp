@@ -18,7 +18,8 @@ searching_worker::searching_worker(const std::vector<QString> &files,
 }
 
 void searching_worker::run() {
-    auto trigrams = get_trigrams(pattern);
+    std::unordered_set<hash_t> trigrams;
+    get_trigrams(pattern, trigrams);
     for (auto &file : files) {
         if (!contains_all(file, trigrams)) {
             return;
